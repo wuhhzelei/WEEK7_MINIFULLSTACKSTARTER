@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Week 7 Mini App - Pokémon Trainer Card</title>
+  <title>Week 7 Mini App - Trainer Card</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
@@ -13,7 +13,7 @@
 
     /* Navbar */
     .navbar {
-      background-color: #d32f2f; /* Pokémon red */
+      background-color: #d32f2f;
     }
 
     /* Trainer Card */
@@ -69,14 +69,13 @@
       margin-bottom: 10px;
       background-color: #fff;
     }
-
   </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark">
   <div class="container">
-    <a class="navbar-brand" href="#">IT112 Week 7 - Pokémon Trainer Card</a>
+    <a class="navbar-brand" href="#">IT112 Week 7 - Trainer Card</a>
   </div>
 </nav>
 
@@ -85,8 +84,8 @@
   <!-- Trainer Card -->
   <div class="trainer-card">
     <h2>Trainer Card</h2>
-    <h5 id="trainerName">Name: Ash Ketchum</h5>
-    <div class="dex" id="trainerDex">Dex: 001</div>
+    <h5 id="trainerName">Name: </h5>
+    <div class="dex" id="trainerDex">Dex: </div>
   </div>
 
   <div class="row g-4">
@@ -106,7 +105,6 @@
           </div>
           <button class="btn btn-primary w-100" type="submit">Save</button>
         </form>
-        <div id="msg" class="mt-3"></div>
       </div>
     </div>
 
@@ -122,28 +120,58 @@
 </main>
 
 <script>
-  const userForm = document.getElementById('userForm');
-  const trainerName = document.getElementById('trainerName');
-  const trainerDex = document.getElementById('trainerDex');
-  const userList = document.getElementById('userList');
+const userForm = document.getElementById('userForm');
+const trainerName = document.getElementById('trainerName');
+const trainerDex = document.getElementById('trainerDex');
+const userList = document.getElementById('userList');
 
-  userForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = userForm.name.value;
-    const dex = userForm.dex.value;
+// Load saved trainers from localStorage
+let trainers = JSON.parse(localStorage.getItem('trainers')) || [];
 
-    // Update trainer card
-    trainerName.textContent = `Name: ${name}`;
-    trainerDex.textContent = `Dex: ${dex}`;
-
-    // Add to list
-    const item = document.createElement('div');
-    item.className = 'user-list-item';
-    item.textContent = `${name} - Dex: ${dex}`;
+// Function to show trainers in list
+  function showTrainers() {
+  userList.innerHTML = '';
+  trainers.forEach((t, index) => {
+       const item = document.createElement('div');
+       item.className = 'user-list-item d-flex justify-content-between align-items-center';
+       item.innerHTML = `
+       <span>${t.name} - Dex: ${t.dex}</span>
+       <button class="btn btn-sm btn-danger delete-btn">Delete</button>
+    `;
     userList.appendChild(item);
 
-    userForm.reset();
+    // DELETE functionality
+    item.querySelector('.delete-btn').addEventListener('click', () => {
+        trainers.splice(index, 1);
+        localStorage.setItem('trainers', JSON.stringify(trainers));
+        showTrainers();
+        if (trainerName.textContent.includes(t.name)) {
+        trainerName.textContent = `Name: `;
+        trainerDex.textContent = `Dex: `;
+      }
+    });
   });
+}
+
+// Initial show on page load
+showTrainers();
+
+userForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = userForm.name.value;
+  const dex = userForm.dex.value;
+
+  // Update trainer card
+  trainerName.textContent = `Name: ${name}`;
+  trainerDex.textContent = `Dex: ${dex}`;
+
+  // Add new trainer
+  trainers.push({ name, dex });
+  localStorage.setItem('trainers', JSON.stringify(trainers));
+
+  showTrainers();
+  userForm.reset();
+});
 </script>
 
 </body>
